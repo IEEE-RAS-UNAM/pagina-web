@@ -16,10 +16,10 @@ export const SITIO = {
   },
 
   contacto: {
-    correo: null as string | null,
-    instagram: null as string | null,
-    linkedin: null as string | null,
-    github: null as string | null,
+    correo: "ieee.ras.unam@gmail.com" as string | null,
+    instagram: "https://www.instagram.com/ieee_ras_unam/" as string | null,
+    linkedin: "https://www.linkedin.com/company/ieee-ras-unam/" as string | null,
+    github: "https://github.com/IEEE-RAS-UNAM" as string | null,
   },
 
   rama: {
