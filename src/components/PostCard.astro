@@ -42,7 +42,7 @@ const tarjeta = variante === 'tarjeta';
       </div>
     )
   }
-  <div class:list={['flex flex-col gap-2.5', tarjeta ? 'px-[22px] pb-[26px] pt-[22px]' : 'pt-3.5']}>
+  <div class:list={['flex flex-col gap-2.5', tarjeta ? 'px-5.5 pb-6.5 pt-5.5' : 'pt-3.5']}>
     {!tarjeta && <span class="cuna-der h-1 w-14 bg-(--c) [--h:4px]" aria-hidden="true" />}
     <span class="text-xs font-bold uppercase tracking-widest text-(--c)">
       {cat.label} · {fechaPost(d.fecha)}
