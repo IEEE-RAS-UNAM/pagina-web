@@ -4,16 +4,21 @@ import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
 import keystatic from '@keystatic/astro';
 import tailwindcss from '@tailwindcss/vite';
+import cloudflare from '@astrojs/cloudflare';
 
-// Keystatic (el panel para editar contenido en /keystatic) solo se carga con
-// `npm run dev`. Así `npm run build` genera un sitio 100 % estático que se puede
-// subir a cualquier hosting (GitHub Pages, Netlify, Cloudflare Pages…).
+// En `npm run dev` el sitio corre en Node (así Keystatic puede guardar archivos en tu
+// computadora). Para producción (`npm run build`) se usa el adaptador de Cloudflare Workers,
+// que además ejecuta las rutas del panel /keystatic.
 const enDesarrollo = process.argv.includes('dev');
 
 export default defineConfig({
-  // Cambia esto por el dominio real cuando lo tengan (lo usa el calendario .ics).
-  site: 'https://ras.ieee-unam.example',
-  integrations: [react(), markdoc(), ...(enDesarrollo ? [keystatic()] : [])],
+  // Cambia esto por la URL real (primero la de workers.dev, luego el dominio).
+  site: 'https://ieee-ras-unam.example.workers.dev',
+  // imageService 'passthrough' y session: false evitan que Cloudflare pida recursos que el
+  // sitio no usa (Cloudflare Images y un KV para sesiones).
+  adapter: enDesarrollo ? undefined : cloudflare({ imageService: 'passthrough' }),
+  session: false,
+  integrations: [react(), markdoc(), keystatic()],
   vite: {
     plugins: [tailwindcss()],
   },

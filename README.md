@@ -18,14 +18,31 @@ npm run dev
 
 Lo que guardes en el panel se escribe como archivos en `src/content/` y el sitio se actualiza al momento.
 
-## Publicar
+## Publicar (Cloudflare Workers)
 
-```bash
-npm run build     # genera el sitio en dist/
-npm run preview   # para revisarlo antes de subirlo
-```
+- `npm run dev` corre el sitio en Node y Keystatic guarda **archivos locales** (tus pruebas no tocan el repo).
+- `npm run build` usa el adaptador de Cloudflare y Keystatic guarda **en GitHub** (cada "Guardar" es un commit).
+- Para probar el build de producción en tu máquina: `npm run build` y luego `npx wrangler dev`
+  (los secretos de prueba van en `.dev.vars`, que nunca se sube).
 
-`dist/` es HTML estático: se puede subir a GitHub Pages, Netlify, Cloudflare Pages o cualquier hosting. El panel `/keystatic` **no** se incluye en el build; solo existe con `npm run dev`.
+### Configuración inicial (una sola vez)
+
+1. En `keystatic.config.ts`, pon `REPO = 'organizacion/repositorio'`.
+2. Crea la GitHub App: arranca con `PUBLIC_KEYSTATIC_GITHUB=true` (ver abajo), abre `/keystatic`,
+   inicia sesión con GitHub y sigue el asistente. Instala la app **solo** en el repositorio del sitio.
+   El asistente crea un `.env` con 4 valores: guárdalos en un lugar seguro y **no los subas**.
+   - PowerShell: `$env:PUBLIC_KEYSTATIC_GITHUB="true"; npm run dev`
+   - CMD: `set PUBLIC_KEYSTATIC_GITHUB=true&& npm run dev`
+3. Cloudflare → Workers & Pages → Create application → Import a repository.
+   - Build command: `npx astro build` · Deploy command: `npx wrangler deploy`
+   - **Variable de build:** `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`
+   - **Secretos del Worker** (Settings → Variables and Secrets): `KEYSTATIC_GITHUB_CLIENT_ID`,
+     `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET`
+4. En la GitHub App (Settings de la organización → GitHub Apps) agrega la Callback URL
+   `https://<tu-url>/api/keystatic/github/oauth/callback`.
+5. Cambia `site` en `astro.config.mjs` por la URL real.
+
+Quien tenga permiso de escritura en el repositorio puede publicar en `https://<tu-url>/keystatic`.
 
 > **Eventos próximos y pasados:** el sitio decide si un evento ya pasó en el momento del build. Programa un build diario (por ejemplo, con un cron de GitHub Actions o un deploy hook de Netlify) para que los eventos pasen solos a "Pasados".
 

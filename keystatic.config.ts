@@ -3,11 +3,17 @@ import { config, fields, collection } from '@keystatic/core';
 // Este archivo define los formularios del panel /keystatic.
 // Si agregas o cambias un campo aquí, actualiza también src/content.config.ts.
 
+// Repositorio del sitio en GitHub: cámbialo por 'organizacion/repositorio'.
+const REPO = 'IEEE-RAS-UNAM/pagina-web';
+
+// En producción (Cloudflare) el panel guarda en GitHub: cada "Guardar" es un commit.
+// En `npm run dev` guarda archivos en tu computadora, para que tus pruebas no toquen el repo.
+// Para usar GitHub también en local (p. ej. la primera vez, para crear la GitHub App),
+// arranca con la variable PUBLIC_KEYSTATIC_GITHUB=true.
+const usarGitHub = import.meta.env.PROD || import.meta.env.PUBLIC_KEYSTATIC_GITHUB === 'true';
+
 export default config({
-  // 'local' guarda los cambios como archivos en tu computadora.
-  // Para que otras personas publiquen desde el navegador, cambia a GitHub:
-  // https://keystatic.com/docs/github-mode
-  storage: { kind: 'local' },
+  storage: usarGitHub ? { kind: 'github', repo: REPO } : { kind: 'local' },
   ui: {
     brand: { name: 'IEEE RAS UNAM' },
   },
