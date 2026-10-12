@@ -3,7 +3,7 @@ import { config, fields, collection } from '@keystatic/core';
 // Este archivo define los formularios del panel /keystatic.
 // Si agregas o cambias un campo aquí, actualiza también src/content.config.ts.
 
-// Repositorio del sitio en GitHub: cámbialo por 'organizacion/repositorio'.
+// Repositorio del sitio en GitHub: cambiar por 'organizacion/repositorio'.
 const REPO = 'IEEE-RAS-UNAM/pagina-web';
 
 // En producción (Cloudflare) el panel guarda en GitHub: cada "Guardar" es un commit.
@@ -119,6 +119,12 @@ export default config({
         }),
         portadaAlt: fields.text({ label: 'Descripción de la foto (texto alternativo)' }),
         portadaCredito: fields.text({ label: 'Crédito de la foto' }),
+        portadaCompleta: fields.checkbox({
+          label: 'Mostrar la portada completa (flyers)',
+          description:
+            'Márcalo si la portada es un flyer o tiene texto: se muestra entera en vez de recortarse. Para fotos déjalo sin marcar.',
+          defaultValue: false,
+        }),
         evento: fields.relationship({
           label: 'Evento relacionado',
           collection: 'eventos',

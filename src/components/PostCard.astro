@@ -26,14 +26,23 @@ const tarjeta = variante === 'tarjeta';
 >
   {
     d.portada ? (
-      <img class="aspect-video w-full object-cover" src={d.portada} alt={d.portadaAlt ?? ''} loading="lazy" />
+      <img
+        class:list={[
+          'aspect-video w-full',
+          // Fotos: llenan el marco (se recortan las orillas). Flyers: se ven completos sobre fondo suave.
+          d.portadaCompleta ? 'bg-suave object-contain' : 'object-cover',
+        ]}
+        src={d.portada}
+        alt={d.portadaAlt ?? ''}
+        loading="lazy"
+      />
     ) : (
       <div class="flex aspect-video w-full items-center justify-center bg-marcador text-sm font-semibold text-gris">
         [Foto del evento]
       </div>
     )
   }
-  <div class:list={['flex flex-col gap-2.5', tarjeta ? 'px-5.5 pb-6.5 pt-5.5' : 'pt-3.5']}>
+  <div class:list={['flex flex-col gap-2.5', tarjeta ? 'px-[22px] pb-[26px] pt-[22px]' : 'pt-3.5']}>
     {!tarjeta && <span class="cuna-der h-1 w-14 bg-(--c) [--h:4px]" aria-hidden="true" />}
     <span class="text-xs font-bold uppercase tracking-widest text-(--c)">
       {cat.label} · {fechaPost(d.fecha)}

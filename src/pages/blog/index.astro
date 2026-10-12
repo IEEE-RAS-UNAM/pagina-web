@@ -19,8 +19,8 @@ const filtros = [
   <section class="mx-auto flex max-w-7xl flex-col gap-3.5 px-6 pb-8 pt-14">
     <nav aria-label="Ruta" class="text-sm text-gris"><a href="/">Inicio</a> / Blog</nav>
     <h1 class="m-0 text-[clamp(34px,4.4vw,52px)] font-extrabold leading-[1.05] text-carbon">Blog del capítulo</h1>
-    <p class="m-0 max-w-170 text-lg leading-relaxed text-tinta-2">
-      Crónicas de eventos, avances de proyectos y tutoriales.
+    <p class="m-0 max-w-[680px] text-lg leading-relaxed text-tinta-2">
+      Crónicas de eventos, avances de proyectos y tutoriales que salen de nuestros talleres.
     </p>
     <div class="flex flex-wrap gap-2 pt-3" role="group" aria-label="Categorías" data-filtros-blog>
       {
@@ -44,16 +44,21 @@ const filtros = [
         <a href={`/blog/${destacado.id}`} class="group flex flex-wrap bg-rojo text-white no-underline hover:text-white">
           {destacado.data.portada ? (
             <img
-              class="min-h-55 flex-[1_1_560px] object-cover sm:min-h-90 sm:cuna-der sm:[--h:80px]"
+              class:list={[
+                'h-[220px] min-w-0 flex-[1_1_560px] sm:h-[400px]',
+                destacado.data.portadaCompleta
+                  ? 'bg-white object-contain'
+                  : 'object-cover sm:cuna-der sm:[--h:80px]',
+              ]}
               src={destacado.data.portada}
               alt={destacado.data.portadaAlt ?? ''}
             />
           ) : (
-            <div class="flex min-h-55 flex-[1_1_560px] items-center justify-center bg-morado p-6 text-center text-[15px] font-semibold text-rosa sm:min-h-90 sm:cuna-der sm:[--h:80px]">
+            <div class="flex min-h-[220px] flex-[1_1_560px] items-center justify-center bg-morado p-6 text-center text-[15px] font-semibold text-rosa sm:min-h-[360px] sm:cuna-der sm:[--h:80px]">
               [Foto destacada del evento]
             </div>
           )}
-          <div class="flex flex-[1_1_420px] flex-col justify-center gap-3.5 px-5.5 py-7 sm:px-10 sm:py-11">
+          <div class="flex flex-[1_1_420px] flex-col justify-center gap-3.5 px-[22px] py-7 sm:px-10 sm:py-11">
             <span class="text-xs font-bold uppercase tracking-[0.12em] text-rosa">
               Destacado · {CATEGORIAS[destacado.data.categoria].label} · {fechaPost(destacado.data.fecha)}
             </span>
@@ -75,7 +80,7 @@ const filtros = [
 </Base>
 
 <script>
-  // Filtro por categoría. Con muchas entradas convendría una ruta aparte tipo /blog/categoria/[cat].
+  // Filtro por categoría. Con muchas entradas conviene cambiarlo por páginas /blog/categoria/[cat].
   const grupo = document.querySelector<HTMLElement>('[data-filtros-blog]');
   grupo?.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filtro]');
