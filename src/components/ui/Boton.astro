@@ -1,0 +1,24 @@
+---
+// Botón/enlace con los estilos del sitio. Todas las variantes viven aquí.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'a'> & {
+  href: string;
+  variante?: 'rojo' | 'blanco' | 'contorno' | 'contorno-claro';
+  chico?: boolean;
+};
+
+const { href, variante = 'rojo', chico = false, class: extra, ...resto } = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center rounded-[2px] border-2 font-bold no-underline transition-colors';
+const tamano = chico ? 'min-h-11 px-[18px] text-[15px]' : 'min-h-12 px-6 text-base';
+const variantes = {
+  rojo: 'border-transparent bg-rojo text-white hover:bg-carbon hover:text-white',
+  blanco: 'border-transparent bg-white text-rojo hover:bg-rosa-2 hover:text-rojo',
+  contorno: 'border-rojo bg-transparent text-rojo hover:bg-rojo hover:text-white',
+  'contorno-claro': 'border-white bg-transparent text-white hover:bg-white hover:text-rojo',
+};
+---
+
+<a href={href} class:list={[base, tamano, variantes[variante], extra]} {...resto}><slot /></a>

@@ -1,0 +1,67 @@
+---
+// Un evento en la línea de tiempo de /eventos.
+import Etiqueta from './ui/Etiqueta.astro';
+import Boton from './ui/Boton.astro';
+import { TIPOS, MODALIDADES, enlaceCalendario, type Evento } from '../lib/contenido';
+import { dia, mesCorto, hora } from '../lib/fechas';
+
+interface Props {
+  evento: Evento;
+  pasado: boolean;
+}
+const { evento: ev, pasado } = Astro.props;
+const tipo = TIPOS[ev.tipo];
+---
+
+<li id={ev.id} data-tipo={ev.tipo} class="flex items-stretch gap-2.5 sm:gap-5" style={`--c:${tipo.color}`}>
+  <!-- Fecha -->
+  <div class="flex w-11 flex-none flex-col items-end gap-0.5 pt-4.5 sm:w-18">
+    <span class="text-2xl font-extrabold leading-none text-carbon sm:text-[30px]">{dia(ev.inicioDate)}</span>
+    <span class="text-xs font-bold tracking-widest text-gris">{mesCorto(ev.inicioDate)}</span>
+  </div>
+
+  <!-- En la linea de tiempo un punto vacío = próximo, punto lleno = ya pasó -->
+  <div class="flex w-5 flex-none flex-col items-center" aria-hidden="true">
+    <span class="h-5.5 w-0.5 bg-linea-2"></span>
+    <span class:list={['size-3.5 flex-none rounded-full border-[3px] border-(--c)', pasado ? 'bg-(--c)' : 'bg-white']}
+    ></span>
+    <span class="w-0.5 flex-1 bg-linea-2"></span>
+  </div>
+
+  <!-- Tarjeta -->
+  <article class="mb-5 flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-4 bg-suave px-6 py-5.5">
+    <div class="flex min-w-0 flex-[1_1_380px] flex-col gap-2">
+      <div class="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+        <Etiqueta color={tipo.color}>{tipo.label}</Etiqueta>
+        <span class="text-sm text-gris">
+          {hora(ev.inicioDate)} · {ev.lugar}
+          {ev.modalidad !== 'presencial' && ` · ${MODALIDADES[ev.modalidad]}`}
+        </span>
+      </div>
+      <h3 class="m-0 text-[21px] font-bold leading-snug">{ev.titulo}</h3>
+      {ev.resumen && <p class="m-0 text-[15px] leading-relaxed text-tinta-2">{ev.resumen}</p>}
+    </div>
+
+    {
+      pasado ? (
+        ev.cronica && (
+          <Boton href={`/blog/${ev.cronica}`} variante="contorno" chico>
+            Leer la crónica →
+          </Boton>
+        )
+      ) : (
+        //Checar si funciona con vtools
+        <div class="flex flex-wrap gap-2.5">
+          {ev.vtools && (
+            <Boton href={ev.vtools} chico>
+              Registrarme en vTools
+            </Boton>
+          )}
+          <Boton href={enlaceCalendario(ev)} variante="contorno" chico target="_blank" rel="noopener">
+            Agregar al calendario
+          </Boton>
+        </div>
+      )
+    }
+  </article>
+</li>

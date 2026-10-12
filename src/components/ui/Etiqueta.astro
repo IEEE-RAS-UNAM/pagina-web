@@ -1,0 +1,12 @@
+---
+// Etiqueta de color sólido para el tipo de evento.
+interface Props {
+  color: string; // variable CSS, p. ej. 'var(--color-rojo)'
+}
+const { color } = Astro.props;
+---
+
+<span
+  class="self-start bg-(--c) px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em] text-white"
+  style={`--c:${color}`}><slot /></span
+>

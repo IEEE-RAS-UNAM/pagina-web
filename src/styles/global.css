@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*
+  Maldito seas IEEE GUIDELINES, te odio a ti y a PANTONE, aqui me obligaron a usar css
+*/
+@theme {
+  --color-rojo: #862633; /* RAS Pantone 202 C, color principal */
+  --color-morado: #5f2167; /* RAS Pantone 2623 C */
+  --color-gris: #57565b; /* RAS Cool Gray 11 */
+  --color-negro: #1f1d22;
+  --color-carbon: #2a2629;
+  --color-tinta: #1a1a1a; /* texto principal */
+  --color-tinta-2: #3a3a3a; /* texto secundario */
+  --color-suave: #f5f3f4; /* fondos de tarjetas y secciones */
+  --color-linea: #e4e1e5;
+  --color-linea-2: #d8d5d9;
+  --color-marcador: #e8e4e7;
+  --color-rosa: #f2d4dc; /* texto claro sobre rojo o carbón */
+  --color-rosa-2: #f3e6ea;
+  --color-barra: #1f1f1f; /* barra superior de sitios IEEE */
+
+  --font-sans: 'Open Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/*
+  Cuña IEEE: siempre debe estar a 45 grados. Define el tamaño del corte con 56px.
+  cuna-der → corte abajo a la derecha · cuna-izq → corte abajo a la izquierda
+  marco-cuna → esquina inferior derecha recortada (para fotos), tamaño de 64px
+*/
+@utility cuna-der {
+  clip-path: polygon(0 0, calc(100% - var(--h, 16px)) 0, 100% 100%, 0 100%);
+}
+@utility cuna-izq {
+  clip-path: polygon(var(--h, 16px) 0, 100% 0, 100% 100%, 0 100%);
+}
+@utility marco-cuna {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--c, 64px)), calc(100% - var(--c, 64px)) 100%, 0 100%);
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-tinta antialiased;
+  }
+  a {
+    @apply text-rojo hover:text-carbon;
+  }
+  :focus-visible {
+    @apply outline-3 outline-offset-2 outline-morado;
+  }
+}

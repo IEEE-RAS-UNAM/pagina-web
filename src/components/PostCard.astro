@@ -1,0 +1,45 @@
+---
+// Tarjeta de entrada del blog.
+// variante="tarjeta": caja blanca con sombra (Inicio) · variante="simple": sin caja, con cuña (Blog)
+import type { CollectionEntry } from 'astro:content';
+import { CATEGORIAS } from '../lib/contenido';
+import { fechaPost } from '../lib/fechas';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  variante?: 'tarjeta' | 'simple';
+}
+const { post, variante = 'tarjeta' } = Astro.props;
+const d = post.data;
+const cat = CATEGORIAS[d.categoria];
+const tarjeta = variante === 'tarjeta';
+---
+
+<a
+  href={`/blog/${post.id}`}
+  data-categoria={d.categoria}
+  style={`--c:${cat.color}`}
+  class:list={[
+    'group flex flex-col text-tinta no-underline hover:text-tinta',
+    tarjeta && 'bg-white shadow-[0_1px_2px_rgba(40,20,25,0.08)]',
+  ]}
+>
+  {
+    d.portada ? (
+      <img class="aspect-video w-full object-cover" src={d.portada} alt={d.portadaAlt ?? ''} loading="lazy" />
+    ) : (
+      <div class="flex aspect-video w-full items-center justify-center bg-marcador text-sm font-semibold text-gris">
+        [Foto del evento]
+      </div>
+    )
+  }
+  <div class:list={['flex flex-col gap-2.5', tarjeta ? 'px-5.5 pb-6.5 pt-5.5' : 'pt-3.5']}>
+    {!tarjeta && <span class="cuna-der h-1 w-14 bg-(--c) [--h:4px]" aria-hidden="true" />}
+    <span class="text-xs font-bold uppercase tracking-widest text-(--c)">
+      {cat.label} · {fechaPost(d.fecha)}
+    </span>
+    <h3 class="m-0 text-xl font-bold leading-snug text-carbon group-hover:text-rojo">{d.titulo}</h3>
+    <p class="m-0 text-[15px] leading-relaxed text-tinta-2">{d.extracto}</p>
+    {!tarjeta && <span class="text-sm text-gris">Por {d.autor}</span>}
+  </div>
+</a>

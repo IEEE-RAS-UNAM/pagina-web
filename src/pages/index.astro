@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import EventCard from '../components/EventCard.astro';
+import PostCard from '../components/PostCard.astro';
+import Boton from '../components/ui/Boton.astro';
+import Ceja from '../components/ui/Ceja.astro';
+import { getEventos, separarEventos, getPosts, TIPOS } from '../lib/contenido';
+import { dia, mesCorto } from '../lib/fechas';
+import { UNETE_IEEE } from '../lib/sitio';
+
+const { proximos } = separarEventos(await getEventos());
+const destacados = proximos.slice(0, 4);
+const siguiente = proximos[0];
+const posts = (await getPosts()).slice(0, 3);
+
+const tituloSeccion = 'm-0 text-[clamp(28px,3.4vw,40px)] font-extrabold leading-[1.1] text-carbon';
+---
+
+<Base activo="inicio">
+  <section class="relative overflow-hidden bg-rojo text-white">
+    <div class="cuna-der absolute bottom-0 left-0 h-14 w-[58%] bg-morado [--h:56px]" aria-hidden="true"></div>
+    <div class="absolute bottom-21 left-0 h-0.5 w-[46%] bg-rosa" aria-hidden="true"></div>
+
+    <div class="relative mx-auto flex max-w-7xl flex-wrap items-center gap-12 px-6 pb-35 pt-20">
+      <div class="flex min-w-0 flex-[1_1_520px] flex-col gap-6">
+        <Ceja clara>Robótica y automatización · Región 9</Ceja>
+        <h1 class="m-0 text-[clamp(36px,5vw,60px)] font-extrabold leading-[1.05] tracking-tight">
+          Impulsamos los proyectos de robótica y automatización.
+        </h1>
+        <p class="m-0 max-w-140 text-lg leading-relaxed text-rosa-2">
+          Somos el capítulo estudiantil de la IEEE Robotics and Automation Society en la UNAM. Talleres,
+          competencias, charlas y visitas abiertas a toda la comunidad de la Facultad de Ingeniería e IEEE.
+        </p>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <Boton href="/eventos" variante="blanco">Ver próximos eventos</Boton>
+          <Boton href="/blog" variante="contorno-claro">Leer el blog</Boton>
+        </div>
+      </div>
+
+      <div class="relative min-w-0 flex-[1_1_420px]">
+        <div
+          class="marco-cuna flex aspect-4/3 items-center justify-center bg-morado p-6 text-center text-[15px] font-semibold leading-relaxed text-rosa [--c:64px]"
+        >
+          [Foto original del capítulo:<br />equipo trabajando en un robot]
+        </div>
+        {
+          siguiente && (
+            <a
+              href={`/eventos#${siguiente.id}`}
+              class="absolute bottom-7 left-3 flex flex-col gap-0.5 bg-white px-4.5 py-3.5 text-carbon no-underline shadow-[0_8px_24px_rgba(30,10,15,0.25)] sm:-left-4"
+            >
+              <span class="text-xs font-bold uppercase tracking-widest text-gris">Siguiente evento</span>
+              <span class="text-base font-extrabold">
+                {TIPOS[siguiente.tipo].label} · {dia(siguiente.inicioDate)} {mesCorto(siguiente.inicioDate)}
+              </span>
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Próximos eventos -->
+  <section class="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-20" aria-labelledby="proximos">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="flex flex-col gap-2.5">
+        <Ceja>Agenda</Ceja>
+        <h2 id="proximos" class={tituloSeccion}>Próximos eventos</h2>
+      </div>
+      <a href="/eventos" class="font-bold no-underline">Ver la línea de tiempo completa →</a>
+    </div>
+    {
+      destacados.length ? (
+        <ol class="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(240px,1fr))] p-0">
+          {destacados.map((ev) => (
+            <EventCard evento={ev} />
+          ))}
+        </ol>
+      ) : (
+        <p class="m-0 py-12 text-[17px] text-gris">Pronto anunciaremos nuevos eventos.</p>
+      )
+    }
+  </section>
+
+  <!-- Blog -->
+  <section class="bg-suave" aria-labelledby="blog">
+    <div class="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-20">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-2.5">
+          <Ceja>Blog</Ceja>
+          <h2 id="blog" class={tituloSeccion}>Lo que hemos hecho</h2>
+        </div>
+        <a href="/blog" class="font-bold no-underline">Todas las entradas →</a>
+      </div>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-7">
+        {posts.map((p) => <PostCard post={p} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Súmate -->
+  <section class="mx-auto max-w-7xl px-6 py-20" aria-labelledby="unete">
+    <div class="relative flex flex-wrap items-center justify-between gap-8 border-2 border-rojo px-5 py-7 sm:p-10">
+      <div class="cuna-izq absolute -right-0.5 -top-0.5 h-3.5 w-30 bg-rojo [--h:14px]" aria-hidden="true"></div>
+      <div class="flex flex-[1_1_480px] flex-col gap-3">
+        <h2 id="unete" class={tituloSeccion}>Súmate al capítulo</h2>
+        <p class="m-0 max-w-160 text-[17px] leading-relaxed text-tinta-2">
+          Con la membresía estudiantil de IEEE y RAS tienes acceso a IEEE Xplore, becas, competencias
+          internacionales y a la red de capítulos de la Región 9.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <Boton href={UNETE_IEEE}>Hazte miembro de IEEE</Boton>
+        <Boton href="#" variante="contorno">Conoce a la mesa directiva</Boton>
+      </div>
+    </div>
+  </section>
+</Base>

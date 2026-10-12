@@ -1,0 +1,9 @@
+titulo: '[Ejemplo] Taller de soldadura y PCB'
+tipo: taller
+inicio: '2026-09-20T10:00'
+duracionHoras: 4
+modalidad: presencial
+lugar: '[Laboratorio]'
+resumen: '[Ejemplo] Soldadura de componentes de montaje superficial y through-hole.'
+vtools: null
+cronica: tutorial-soldadura-basica

@@ -1,0 +1,32 @@
+---
+// Tarjeta Próximos eventos en el Inicio.
+import Etiqueta from './ui/Etiqueta.astro';
+import { TIPOS, type Evento } from '../lib/contenido';
+import { dia, mesCorto, hora } from '../lib/fechas';
+
+interface Props {
+  evento: Evento;
+}
+const { evento: ev } = Astro.props;
+const tipo = TIPOS[ev.tipo];
+---
+
+<li class="flex flex-col gap-5 pb-6 pr-5" style={`--c:${tipo.color}`}>
+  <div class="flex items-center" aria-hidden="true">
+    <span class="size-4 flex-none rounded-full border-4 border-(--c) bg-white"></span>
+    <span class="h-0.5 flex-1 bg-linea-2"></span>
+  </div>
+
+  <article class="flex h-full min-h-59 flex-col gap-3.5 bg-suave p-5.5">
+    <div class="flex items-baseline gap-2.5">
+      <span class="text-[40px] font-extrabold leading-none text-carbon">{dia(ev.inicioDate)}</span>
+      <span class="text-sm font-bold tracking-widest text-gris">{mesCorto(ev.inicioDate)} · {hora(ev.inicioDate)}</span>
+    </div>
+    <Etiqueta color={tipo.color}>{tipo.label}</Etiqueta>
+    <h3 class="m-0 text-[19px] font-bold leading-snug">{ev.titulo}</h3>
+    <span class="text-sm text-gris">{ev.lugar}</span>
+    <a href={ev.vtools ?? `/eventos#${ev.id}`} class="mt-auto text-[15px] font-bold no-underline">
+      {ev.vtools ? 'Registro en vTools →' : 'Ver detalles →'}
+    </a>
+  </article>
+</li>

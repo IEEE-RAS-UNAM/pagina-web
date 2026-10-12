@@ -1,0 +1,19 @@
+---
+// Botón de filtro. Se ve "activo" cuando aria-pressed="true" (lo cambia el script de la página).
+interface Props {
+  id: string;
+  color: string; // variable CSS
+  activo?: boolean;
+}
+const { id, color, activo = false } = Astro.props;
+---
+
+<button
+  type="button"
+  data-filtro={id}
+  aria-pressed={activo ? 'true' : 'false'}
+  style={`--c:${color}`}
+  class="min-h-11 cursor-pointer rounded-[2px] border-2 border-(--c) bg-white px-[18px] text-sm font-bold text-(--c) aria-pressed:bg-(--c) aria-pressed:text-white"
+>
+  <slot />
+</button>

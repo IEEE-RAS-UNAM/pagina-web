@@ -1,0 +1,65 @@
+---
+import Logo from './Logo.astro';
+import { SITIO, NAV, SITIOS_IEEE, UNETE_IEEE, type SeccionActiva } from '../lib/sitio';
+
+interface Props {
+  activo: SeccionActiva;
+}
+const { activo } = Astro.props;
+---
+
+<header class="border-b border-linea bg-white">
+  <!-- Barra de sitios IEEE -->
+  <div class="bg-barra text-xs text-white">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-5 gap-y-1.5 px-6 py-2">
+      <nav aria-label="Sitios de IEEE" class="flex flex-wrap gap-x-4.5 gap-y-1">
+        {
+          SITIOS_IEEE.map((s) => (
+            <a href={s.href} class="text-white no-underline hover:text-white hover:underline">
+              {s.label}
+            </a>
+          ))
+        }
+      </nav>
+      <a
+        href={UNETE_IEEE}
+        class="rounded-xs bg-white px-3 py-1 font-bold text-barra no-underline hover:bg-rosa-2 hover:text-barra"
+      >
+        Únete a IEEE
+      </a>
+    </div>
+  </div>
+
+  <!-- Identificador del capítulo -> navegación a blogs y eso -> logo IEEE -->
+  <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-10 gap-y-4 px-6 py-4.5">
+    <a href="/" class="flex min-w-0 flex-[1_1_340px] items-center gap-3.5 text-inherit no-underline hover:text-inherit">
+      <Logo
+        src={SITIO.logos.capitulo}
+        alt={`Ícono de ${SITIO.nombreCorto}`}
+        etiqueta="Ícono del capítulo"
+        ancho={56}
+        alto={56}
+      />
+      <span class="flex min-w-0 flex-col gap-0.5">
+        <span class="text-[19px] font-extrabold leading-tight text-carbon">{SITIO.universidad}</span>
+        <span class="text-[17px] font-semibold leading-tight text-rojo">{SITIO.capitulo}</span>
+      </span>
+    </a>
+
+    <nav aria-label="Principal" class="flex flex-wrap gap-x-1.5 gap-y-1 text-[15px] font-semibold">
+      {
+        NAV.map((item) => (
+          <a
+            href={item.href}
+            aria-current={item.id === activo ? 'page' : undefined}
+            class="border-b-[3px] border-transparent px-3 py-2.5 text-tinta-2 no-underline hover:text-rojo aria-[current=page]:border-rojo aria-[current=page]:text-carbon"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <Logo src={SITIO.logos.ieee} alt="IEEE" etiqueta="Logo IEEE<br>(archivo oficial)" ancho={112} alto={36} />
+  </div>
+</header>

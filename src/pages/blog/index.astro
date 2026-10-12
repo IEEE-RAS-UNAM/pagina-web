@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import Filtro from '../../components/ui/Filtro.astro';
+import { getPosts, CATEGORIAS } from '../../lib/contenido';
+import { fechaPost } from '../../lib/fechas';
+
+const posts = await getPosts();
+// Destacado: el más reciente marcado como "destacar"; si no hay, el más reciente.
+const destacado = posts.find((p) => p.data.destacado) ?? posts[0];
+const resto = posts.filter((p) => p !== destacado);
+const filtros = [
+  { id: 'todos', label: 'Todo', color: 'var(--color-carbon)' },
+  ...Object.entries(CATEGORIAS).map(([id, c]) => ({ id, label: c.plural, color: c.color })),
+];
+---
+
+<Base titulo="Blog" activo="blog" descripcion="Crónicas, proyectos y tutoriales del capítulo IEEE RAS UNAM.">
+  <section class="mx-auto flex max-w-7xl flex-col gap-3.5 px-6 pb-8 pt-14">
+    <nav aria-label="Ruta" class="text-sm text-gris"><a href="/">Inicio</a> / Blog</nav>
+    <h1 class="m-0 text-[clamp(34px,4.4vw,52px)] font-extrabold leading-[1.05] text-carbon">Blog del capítulo</h1>
+    <p class="m-0 max-w-170 text-lg leading-relaxed text-tinta-2">
+      Crónicas de eventos, avances de proyectos y tutoriales.
+    </p>
+    <div class="flex flex-wrap gap-2 pt-3" role="group" aria-label="Categorías" data-filtros-blog>
+      {
+        filtros.map((f, i) => (
+          <Filtro id={f.id} color={f.color} activo={i === 0}>
+            {f.label}
+          </Filtro>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    destacado && (
+      <section
+        class="mx-auto max-w-7xl px-6 pb-14 pt-4"
+        aria-label="Entrada destacada"
+        data-destacado
+        data-categoria={destacado.data.categoria}
+      >
+        <a href={`/blog/${destacado.id}`} class="group flex flex-wrap bg-rojo text-white no-underline hover:text-white">
+          {destacado.data.portada ? (
+            <img
+              class="min-h-55 flex-[1_1_560px] object-cover sm:min-h-90 sm:cuna-der sm:[--h:80px]"
+              src={destacado.data.portada}
+              alt={destacado.data.portadaAlt ?? ''}
+            />
+          ) : (
+            <div class="flex min-h-55 flex-[1_1_560px] items-center justify-center bg-morado p-6 text-center text-[15px] font-semibold text-rosa sm:min-h-90 sm:cuna-der sm:[--h:80px]">
+              [Foto destacada del evento]
+            </div>
+          )}
+          <div class="flex flex-[1_1_420px] flex-col justify-center gap-3.5 px-5.5 py-7 sm:px-10 sm:py-11">
+            <span class="text-xs font-bold uppercase tracking-[0.12em] text-rosa">
+              Destacado · {CATEGORIAS[destacado.data.categoria].label} · {fechaPost(destacado.data.fecha)}
+            </span>
+            <h2 class="m-0 text-[clamp(26px,2.8vw,36px)] font-extrabold leading-tight">{destacado.data.titulo}</h2>
+            <p class="m-0 text-base leading-relaxed text-rosa-2">{destacado.data.extracto}</p>
+            <span class="font-bold group-hover:underline">Leer entrada →</span>
+          </div>
+        </a>
+      </section>
+    )
+  }
+
+  <section class="mx-auto max-w-7xl px-6 pb-20" aria-label="Entradas recientes">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-7 gap-y-10" data-rejilla-blog>
+      {resto.map((p) => <PostCard post={p} variante="simple" />)}
+    </div>
+    <p class="m-0 py-12 text-[17px] text-gris" data-vacio hidden>No hay entradas en esta categoría todavía.</p>
+  </section>
+</Base>
+
+<script>
+  // Filtro por categoría. Con muchas entradas convendría una ruta aparte tipo /blog/categoria/[cat].
+  const grupo = document.querySelector<HTMLElement>('[data-filtros-blog]');
+  grupo?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filtro]');
+    if (!b) return;
+    const f = b.dataset.filtro;
+    grupo.querySelectorAll<HTMLButtonElement>('[data-filtro]').forEach((x) =>
+      x.setAttribute('aria-pressed', String(x === b)),
+    );
+    let visibles = 0;
+    document.querySelectorAll<HTMLElement>('[data-rejilla-blog] [data-categoria]').forEach((card) => {
+      const ver = f === 'todos' || card.dataset.categoria === f;
+      card.hidden = !ver;
+      if (ver) visibles++;
+    });
+    const dest = document.querySelector<HTMLElement>('[data-destacado]');
+    if (dest) dest.hidden = !(f === 'todos' || dest.dataset.categoria === f);
+    const vacio = document.querySelector<HTMLElement>('[data-vacio]');
+    if (vacio) vacio.hidden = visibles > 0 || (dest ? !dest.hidden : false);
+  });
+</script>

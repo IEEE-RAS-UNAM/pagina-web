@@ -1,0 +1,31 @@
+---
+// Muestra un logo oficial si existe la ruta; para pruebas, 
+// si ves un rectangulo con linea punteada en algun lado fusilen al webmaster.
+interface Props {
+  src: string | null;
+  alt: string;
+  etiqueta: string;
+  ancho: number;
+  alto: number;
+  claro?: boolean;
+}
+const { src, alt, etiqueta, ancho, alto, claro = false } = Astro.props;
+---
+
+{
+  src ? (
+    <img src={src} alt={alt} width={ancho} height={alto} class="w-auto" style={`height:${alto}px`} />
+  ) : (
+    <div
+      role="img"
+      aria-label={`Espacio para: ${alt}`}
+      style={`width:${ancho}px;height:${alto}px`}
+      class:list={[
+        'flex flex-none items-center justify-center border-[1.5px] border-dashed p-0.5 text-center text-[10px] font-bold leading-tight',
+        claro ? 'border-white text-white' : 'border-rojo text-rojo',
+      ]}
+    >
+      <span set:html={etiqueta} />
+    </div>
+  )
+}

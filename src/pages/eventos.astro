@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import TimelineItem from '../components/TimelineItem.astro';
+import Filtro from '../components/ui/Filtro.astro';
+import { getEventos, separarEventos, agruparPorMes, TIPOS } from '../lib/contenido';
+
+const { proximos, pasados } = separarEventos(await getEventos());
+const vistas = [
+  { id: 'proximos', label: 'Próximos', grupos: agruparPorMes(proximos), pasado: false },
+  { id: 'pasados', label: 'Pasados', grupos: agruparPorMes(pasados), pasado: true },
+];
+const filtros = [
+  { id: 'todos', label: 'Todos', color: 'var(--color-carbon)' },
+  ...Object.entries(TIPOS).map(([id, t]) => ({ id, label: t.plural, color: t.color })),
+];
+---
+
+<Base titulo="Eventos" activo="eventos" descripcion="Línea de tiempo de eventos del capítulo IEEE RAS UNAM.">
+  <!-- Héroe -->
+  <section class="relative overflow-hidden bg-rojo text-white">
+    <div class="cuna-izq absolute bottom-0 right-0 h-10 w-2/5 bg-morado [--h:40px]" aria-hidden="true"></div>
+    <div class="mx-auto flex max-w-7xl flex-col gap-3.5 px-6 pb-[72px] pt-14">
+      <nav aria-label="Ruta" class="text-sm text-rosa">
+        <a href="/" class="text-rosa hover:text-white">Inicio</a> / Eventos
+      </nav>
+      <h1 class="m-0 text-[clamp(34px,4.4vw,52px)] font-extrabold leading-[1.05]">Línea de tiempo de eventos</h1>
+      <p class="m-0 max-w-[680px] text-lg leading-relaxed text-rosa-2">
+        Todo lo que viene y todo lo que ya hicimos. El registro oficial de cada evento se hace en IEEE vTools;
+        los eventos pasados enlazan a su crónica en el blog.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto flex max-w-7xl flex-col gap-3 px-6 pb-24 pt-10" data-linea>
+    <!-- Controles -->
+    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-b border-linea pb-6">
+      <div class="inline-flex border-2 border-carbon" role="group" aria-label="Periodo">
+        {
+          vistas.map((v, i) => (
+            <button
+              type="button"
+              data-vista={v.id}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+              class="min-h-11 cursor-pointer bg-white px-[22px] text-[15px] font-bold text-carbon aria-pressed:bg-carbon aria-pressed:text-white"
+            >
+              {v.label}
+            </button>
+          ))
+        }
+      </div>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Tipo de evento">
+        {
+          filtros.map((f, i) => (
+            <Filtro id={f.id} color={f.color} activo={i === 0}>
+              {f.label}
+            </Filtro>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Un panel por vista; el script de abajo muestra uno y filtra por tipo -->
+    {
+      vistas.map((v, i) => (
+        <div data-panel={v.id} hidden={i !== 0}>
+          {v.grupos.map((g) => (
+            <section data-mes>
+              <h2 class="m-0 pb-[18px] pt-7 text-sm font-extrabold uppercase tracking-[0.16em] text-carbon">
+                {g.titulo}
+              </h2>
+              <ol class="m-0 flex list-none flex-col p-0">
+                {g.eventos.map((ev) => (
+                  <TimelineItem evento={ev} pasado={v.pasado} />
+                ))}
+              </ol>
+            </section>
+          ))}
+          <p class="m-0 py-12 text-[17px] text-gris" data-vacio hidden={v.grupos.length > 0}>
+            No hay eventos de este tipo en este periodo.
+          </p>
+        </div>
+      ))
+    }
+
+    <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border border-linea px-6 py-5 text-[15px] text-tinta-2">
+      <span class="flex-[1_1_360px]">¿Quieres los eventos en tu calendario? Suscríbete y se actualizará solo.</span>
+      <a href="/eventos.ics" class="font-bold no-underline">Suscribirme (iCal) →</a>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Filtros de la línea de tiempo: no recarga la página, solo oculta tarjetas con el atributo hidden.
+  const raiz = document.querySelector<HTMLElement>('[data-linea]');
+  if (raiz) {
+    let vista = 'proximos';
+    let filtro = 'todos';
+
+    const aplicar = () => {
+      raiz.querySelectorAll<HTMLButtonElement>('[data-vista]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.vista === vista)),
+      );
+      raiz.querySelectorAll<HTMLButtonElement>('[data-filtro]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.filtro === filtro)),
+      );
+      raiz.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.panel !== vista;
+        let visibles = 0;
+        panel.querySelectorAll<HTMLElement>('[data-mes]').forEach((mes) => {
+          let enMes = 0;
+          mes.querySelectorAll<HTMLElement>('[data-tipo]').forEach((item) => {
+            const ver = filtro === 'todos' || item.dataset.tipo === filtro;
+            item.hidden = !ver;
+            if (ver) enMes++;
+          });
+          mes.hidden = enMes === 0;
+          visibles += enMes;
+        });
+        const vacio = panel.querySelector<HTMLElement>('[data-vacio]');
+        if (vacio) vacio.hidden = visibles > 0;
+      });
+    };
+
+    raiz.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!b) return;
+      if (b.dataset.vista) vista = b.dataset.vista;
+      if (b.dataset.filtro) filtro = b.dataset.filtro;
+      aplicar();
+    });
+
+    // Si alguien llega con #id de un evento pasado, abre esa vista.
+    const destino = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    const panelDestino = destino?.closest<HTMLElement>('[data-panel]');
+    if (panelDestino?.dataset.panel) {
+      vista = panelDestino.dataset.panel;
+      aplicar();
+      destino?.scrollIntoView();
+    }
+  }
+</script>

@@ -1,0 +1,9 @@
+Pon aquí los archivos oficiales de los logos (SVG o PNG) y escribe su ruta en
+src/lib/sitio.ts, por ejemplo:  ieee: '/logos/ieee-azul.svg'
+
+- Logo IEEE (Master Brand) en azul o negro: va en el encabezado blanco.
+- Logo IEEE en blanco: va en el pie oscuro.
+- Ícono del capítulo: cuadrado.
+
+Descárgalos de brand-experience.ieee.org y del Resource Center de IEEE RAS.
+No los modifiques, recortes ni cambies de color (lo prohíben las guías).

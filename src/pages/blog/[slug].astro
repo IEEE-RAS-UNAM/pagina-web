@@ -1,0 +1,174 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Ceja from '../../components/ui/Ceja.astro';
+import { getPosts, getEventos, CATEGORIAS, TIPOS, MODALIDADES, minutosLectura } from '../../lib/contenido';
+import { fechaPost, fechaLarga } from '../../lib/fechas';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const d = post.data;
+const cat = CATEGORIAS[d.categoria];
+const { Content } = await render(post);
+
+const eventos = await getEventos();
+const evento = d.evento ? eventos.find((e) => e.id === d.evento) : undefined;
+
+// Relacionadas: primero de la misma categoría, luego las más recientes.
+const otras = (await getPosts()).filter((p) => p.id !== post.id);
+const relacionadas = [
+  ...otras.filter((p) => p.data.categoria === d.categoria),
+  ...otras.filter((p) => p.data.categoria !== d.categoria),
+].slice(0, 3);
+
+const tituloLateral = 'm-0 text-[13px] font-extrabold uppercase tracking-[0.14em] text-carbon';
+const botonCompartir =
+  'inline-flex min-h-10 cursor-pointer items-center rounded-[2px] border border-linea-2 bg-white px-3.5 text-sm font-semibold text-carbon no-underline hover:border-rojo hover:text-rojo';
+---
+
+<Base titulo={d.titulo} descripcion={d.extracto} activo="blog">
+  <article>
+    <header class="mx-auto flex max-w-220 flex-col gap-4 px-6 pb-8 pt-14">
+      <nav aria-label="Ruta" class="text-sm text-gris">
+        <a href="/">Inicio</a> / <a href="/blog">Blog</a> / {cat.label}
+      </nav>
+      <Ceja color={cat.color}>{cat.label}</Ceja>
+      <h1 class="m-0 text-[clamp(32px,4.2vw,50px)] font-extrabold leading-[1.1] text-carbon">{d.titulo}</h1>
+      <p class="m-0 text-xl leading-normal text-tinta-2">{d.extracto}</p>
+      <div class="flex flex-wrap gap-x-5 gap-y-2 pt-2 text-sm text-gris">
+        <span><strong class="text-tinta">{d.autor}</strong>{d.cargo && ` · ${d.cargo}`}</span>
+        <span>{fechaPost(d.fecha)}</span>
+        <span>{minutosLectura(post.body)} min de lectura</span>
+      </div>
+    </header>
+
+    <figure class="mx-auto flex max-w-280 flex-col gap-2.5 px-6">
+      {
+        d.portada ? (
+          <img class="marco-cuna aspect-2/1 w-full object-cover [--c:72px]" src={d.portada} alt={d.portadaAlt ?? ''} />
+        ) : (
+          <div class="marco-cuna flex aspect-2/1 w-full items-center justify-center bg-morado text-[15px] font-semibold text-rosa [--c:72px]">
+            [Foto de portada del evento]
+          </div>
+        )
+      }
+      {
+        (d.portadaAlt || d.portadaCredito) && (
+          <figcaption class="text-[13px] text-gris">
+            {d.portadaAlt}
+            {d.portadaCredito && ` · Foto: ${d.portadaCredito}`}
+          </figcaption>
+        )
+      }
+    </figure>
+
+    <div class="mx-auto flex max-w-280 flex-wrap items-start gap-12 px-6 pb-18 pt-12">
+      <!-- Cuerpo: @tailwindcss/typography (clases prose) da estilo al Markdoc -->
+      <div
+        class="prose prose-lg min-w-0 max-w-none flex-[999_1_560px] text-[#262626] prose-headings:font-extrabold prose-headings:text-carbon prose-a:text-rojo prose-blockquote:border-l-4 prose-blockquote:border-rojo prose-blockquote:font-semibold prose-blockquote:text-carbon prose-code:bg-suave prose-code:px-1.5 prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-none prose-pre:bg-carbon"
+      >
+        <Content />
+        {
+          d.etiquetas.length > 0 && (
+            <div class="not-prose flex flex-wrap gap-2 pt-2">
+              {d.etiquetas.map((t) => (
+                <span class="bg-suave px-3 py-1.5 text-[13px] font-semibold text-carbon">#{t}</span>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <aside class="flex min-w-0 flex-[1_1_280px] flex-col gap-5" aria-label="Datos del evento">
+        {
+          evento && (
+            <div class="relative flex flex-col gap-3.5 bg-suave p-6">
+              <div class="cuna-der absolute left-0 top-0 h-1.5 w-18 bg-rojo [--h:6px]" aria-hidden="true" />
+              <h2 class={tituloLateral}>Datos del evento</h2>
+              <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-[15px]">
+                <dt class="font-bold text-gris">Tipo</dt>
+                <dd class="m-0">{TIPOS[evento.tipo].label}</dd>
+                <dt class="font-bold text-gris">Fecha</dt>
+                <dd class="m-0">{fechaLarga(evento.inicioDate)}</dd>
+                <dt class="font-bold text-gris">Lugar</dt>
+                <dd class="m-0">{evento.lugar}</dd>
+                <dt class="font-bold text-gris">Modalidad</dt>
+                <dd class="m-0">{MODALIDADES[evento.modalidad]}</dd>
+              </dl>
+              {evento.vtools && (
+                <a href={evento.vtools} class="font-bold no-underline">
+                  Ver en IEEE vTools →
+                </a>
+              )}
+              <a href={`/eventos#${evento.id}`} class="font-bold no-underline">
+                Ver en la línea de tiempo →
+              </a>
+            </div>
+          )
+        }
+        <div class="flex flex-col gap-3 border border-linea p-6">
+          <h2 class={tituloLateral}>Compartir</h2>
+          <div class="flex flex-wrap gap-2">
+            <a
+              class={botonCompartir}
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+              target="_blank"
+              rel="noopener">LinkedIn</a
+            >
+            <a
+              class={botonCompartir}
+              href={`https://wa.me/?text=${encodeURIComponent(`${d.titulo} ${Astro.url.href}`)}`}
+              target="_blank"
+              rel="noopener">WhatsApp</a
+            >
+            <button class={botonCompartir} type="button" data-copiar={Astro.url.href}>Copiar enlace</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {
+    relacionadas.length > 0 && (
+      <section class="bg-suave" aria-labelledby="sigue">
+        <div class="mx-auto flex max-w-280 flex-col gap-7 px-6 pb-18 pt-14">
+          <h2 id="sigue" class="m-0 text-[28px] font-extrabold text-carbon">
+            Sigue leyendo
+          </h2>
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
+            {relacionadas.map((p) => (
+              <a
+                href={`/blog/${p.id}`}
+                style={`--c:${CATEGORIAS[p.data.categoria].color}`}
+                class="group flex flex-col gap-2 bg-white p-5.5 no-underline"
+              >
+                <span class="text-xs font-bold uppercase tracking-widest text-(--c)">
+                  {CATEGORIAS[p.data.categoria].label} · {fechaPost(p.data.fecha)}
+                </span>
+                <span class="text-lg font-bold leading-snug text-carbon group-hover:text-rojo">{p.data.titulo}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copiar]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copiar ?? location.href);
+        b.textContent = '¡Copiado!';
+        setTimeout(() => (b.textContent = 'Copiar enlace'), 2000);
+      } catch {
+        /* sin permiso de portapapeles */
+      }
+    });
+  });
+</script>
